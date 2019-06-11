@@ -9,7 +9,7 @@
 
 
 ;;checks if the first element is as the parameter
-(defun starts-with (list x)
+(defun comecar-com (list x)
   "is it a list where the first element is equal to x"
 (and (consp list) (eql (first list) x)))
 
@@ -35,7 +35,7 @@
 (defun segment-pattern-p (pattern)
   "segment pattern matching"
   (and (consp pattern)
-       (starts-with (first pattern) '?*)))
+       (comecar-com (first pattern) '?*)))
 
 
 ;; Matches the segments
@@ -534,11 +534,11 @@
   "respond to user input using the matching function"
   (loop
    (print 'Eliza>)
-   (write (flatten (use-eliza-rules (read))) :pretty t)))
+   (write (flatten (usar-regras-eliza (read))) :pretty t)))
 
 
 ;; the eliza rules functon
-(defun use-eliza-rules (input)
+(defun usar-regras-eliza (input)
   "find someinput that matches the users input"
   (some #'(lambda (rule)
             (let ((result (pat-match (rule-pattern rule) input)))
