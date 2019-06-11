@@ -3,42 +3,42 @@
 ; see http://www.ulisp.com/show?240L
 ;
 
-(defun match (pat in)
+(defun correspondencia (padrao entrada)
   (cond
-   ((null pat) (null in))
-   ((eq (car pat) '*) (wildcard pat in))
-   ((eq (car pat) (car in)) (match (cdr pat) (cdr in)))
+   ((null padrao) (null entrada))
+   ((eq (car padrao) '*) (coringa padrao entrada))
+   ((eq (car padrao) (car entrada)) (correspondencia (cdr padrao) (cdr entrada)))
    (t nil)))
 
-(defun wildcard (pat in)
+(defun coringa (padrao entrada)
   (cond
-   ((match (cddr pat) in) (bind (cadr pat) nil) t)
-   ((null in) nil)
-   ((match pat (cdr in)) (bind (cadr pat) (car in)) t)
+   ((correspondencia (cddr padrao) entrada) (vincular (cadr padrao) nil) t)
+   ((null entrada) nil)
+   ((correspondencia padrao (cdr entrada)) (vincular (cadr padrao) (car entrada)) t)
    (t nil)))
 
 (defvar *viewpoint* '((I you) (you I) (me you) (am are) (was were) (my your)))
 
-(defun swap (value)
+(defun trocar (value)
   (let ((a (assoc value *viewpoint*)))
     (if a (cadr a) value)))
 
-(defvar *bindings* nil)
+(defvar *ligacoes* nil)
 
-(defun bind (var value)
+(defun vincular (var value)
   (cond
-   ((assoc var *bindings*)
-    (push (swap value) (cdr (assoc var *bindings*))))
-   (t (push (cons var (swap value)) *bindings*))))
+   ((assoc var *ligacoes*)
+    (push (trocar value) (cdr (assoc var *ligacoes*))))
+   (t (push (cons var (trocar value)) *ligacoes*))))
 
-(defun subs (list)
+(defun substituir (list)
   (cond
    ((null list) nil)
    (t
-    (let ((a (assoc (car list) *bindings*)))
+    (let ((a (assoc (car list) *ligacoes*)))
       (cond
-       (a (append (cdr a) (subs (cdr list))))
-       (t (cons (car list) (subs (cdr list)))))))))
+       (a (append (cdr a) (substituir (cdr list))))
+       (t (cons (car list) (substituir (cdr list)))))))))
 
 (defvar *rules*
   '(((* x hello * y) (hello. what's up?))
@@ -54,19 +54,19 @@
     ((* x i felt * y) (what other feelings do you have?))
     ((* x) (you say x ?) (tell me more.))))
 
-(defun random-elt (list)
+(defun aleatorio (list)
   (nth (random (length list)) list))
 
 (defun eliza ()
   (loop
-   (princ "> ")
+   (princ "Eliza> ")
    (let* ((line (read-line))
           (input (read-from-string (concatenate 'string "(" line ")"))))
      (when (string= line "bye") (return))
-     (setq *bindings* nil)
+     (setq *ligacoes* nil)
      (print
       (dolist (r *rules*)
-        (when (match (first r) input)
+        (when (correspondencia (first r) input)
           (return 
-           (subs (random-elt (cdr r)))))))
+           (substituir (aleatorio (cdr r)))))))
 (terpri))))
