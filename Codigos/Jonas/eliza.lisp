@@ -40,7 +40,7 @@
        (a (append (cdr a) (substituir (cdr list))))
        (t (cons (car list) (substituir (cdr list)))))))))
 
-(defvar *rules*
+(defvar *regras*
   '(((* x hello * y) (hello. what's up?))
     ((* x i want * y) (what would it mean if you got y ?) (why do you want y ?))
     ((* x i wish * y) (why would it be better if y ?))
@@ -65,7 +65,7 @@
      (when (string= line "bye") (return))
      (setq *ligacoes* nil)
      (print
-      (dolist (r *rules*)
+      (dolist (r *regras*)
         (when (correspondencia (first r) input)
           (return 
            (substituir (aleatorio (cdr r)))))))
